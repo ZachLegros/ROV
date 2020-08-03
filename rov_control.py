@@ -1,89 +1,39 @@
+import numpy as np
 from inputs import get_gamepad
-from math import floor
+from time import sleep
+import os
 
-class Motor:
-   MAX_VOLT = 12
-
-   def __init__(self):
-      self.voltage = 0
-      self.locked = 0
-
-
-   def toggle_lock(self):
-      if self.voltage != 0:
-         if self.locked == 1:
-            self.locked = 0
-         else:
-            self.locked = 1
-
-
-   def map(self, val):
-      """
-      maps values between -1 and 1 to the motor's voltage range
-      """
-
-      return Motor.MAX_VOLT * val
-
-
-   def set_voltage(self, val):
-      if not self.locked:
-         if val > Motor.MAX_VOLT:
-            self.voltage = Motor.MAX_VOLT
-         elif val < -Motor.MAX_VOLT:
-            self.voltage = -Motor.MAX_VOLT
-         else:
-            self.voltage = val
-   
-
-   def stop(self):
-      if self.locked == 1:
-         self.locked = 0
-
-      self.voltage = 0
-
-
-
-class ROV:
-
-   def __init__(self):
-      # forward and backward
-      self.motor1 = Motor()
-      self.motor2 = Motor()
-      # up and down
-      self.motor3 = Motor()
-      self.lights = 0
-
-      
-   def move_x(self, val):
-      voltage = Motor.map(val)
-      self.motor1.set_voltage(voltage)
-      self.motor2.set_voltage(voltage)
-
-   
-   def move_y(self, val):
-      voltage = Motor.map(val)
-      if self.motor3.locked == 1:
-         self.motor3.toggle_lock()
-
-      self.motor3.set_voltage(voltage)
-
-
-   def set_lights(self, val):
-      """
-      1: on, 0: off
-      """
-      self.lights = val
-
-
-   def stop(self):
-      self.motor1.stop()
-      self.motor2.stop()
-      self.motor3.stop()
-
-
-   
-
-
+DEAD_ZONE = 7500
+# descend: ABS_RZ
+# lock descend: BTN_TR
+# ascend: ABS_Z
+# lock ascend: BTN_TL
+# lights: BTN_START
+# turn: ABS_RX
+# cut all motors: BTN_EAST
+# forward/backwards: ABS_Y
+gp_state = {#'ABS_HAT0X' : 0, #-1 to 1
+             #'ABS_HAT0Y' : 0, #-1 to 1
+             'ABS_RX' : 0, #-32768 to 32767
+             #'ABS_RY' : 0, #-32768 to 32767
+             #'ABS_X' : 0, #-32768 to 32767
+             'ABS_Y' : 0, #-32768 to 32767
+             'ABS_Z' : 0, #0 to 255
+             'ABS_RZ' : 0, #0 to 255
+             'BTN_EAST' : 0,
+             'BTN_TR' : 0,
+             'BTN_TL' : 0,
+             'BTN_START' : 0,
+             #'BTN_NORTH' : 0,
+             #'BTN_SELECT' : 0,
+             #'BTN_SOUTH' : 0,
+             #'BTN_THUMBL' : 0,
+             #'BTN_THUMBR' : 0,
+             #'BTN_WEST' : 0,
+             #'SYN_REPORT' : 0,
+             }
+# [ABS_X, ABS_Y, ABS_Z, ABS_RZ, BTN_EAST, BTN_TL, BTN_TR, BTN_START]
+inputs = np.zeros(8)
 
 while 1:
    events = get_gamepad()
@@ -91,11 +41,28 @@ while 1:
       code = event.code
       state = event.state
 
-      # descend: ABS_RZ
-      # lock descend: BTN_TR
-      # ascend: ABS_Z
-      # lock ascend: BTN_TL
-      # lights: BTN_START
-      # turn: ABS_RX
-      # cut all motors: BTN_EAST
-      # forward/backwards: ABS_Y
+      if (code == 'ABS_Y' or code == 'ABS_RX'):
+         if state < 0 and state > -DEAD_ZONE:
+            gp_state[code] = 0
+         elif state > 0 and state < DEAD_ZONE:
+            gp_state[code] = 0
+         else:
+            gp_state[code] = state
+      else:
+         gp_state[code] = state
+
+   # inputs: [ABS_X, ABS_Y, ABS_Z, ABS_RZ, BTN_EAST, BTN_TL, BTN_TR, BTN_START]
+   inputs[0] = np.round(gp_state['ABS_RX']/32767, 2)
+   inputs[1] = np.round(-gp_state['ABS_Y']/32767, 2) 
+   inputs[2] = np.round(gp_state['ABS_Z']/1023, 2)
+   inputs[3] = np.round(gp_state['ABS_RZ']/1023, 2)
+   inputs[4] = gp_state['BTN_EAST']
+   inputs[5] = gp_state['BTN_TL']
+   inputs[6] = gp_state['BTN_TR']
+   inputs[7] = gp_state['BTN_START']
+   
+   os.system('clear')
+   print(inputs, end='\r')
+   
+      
+   
