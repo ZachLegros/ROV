@@ -9,6 +9,8 @@ from time import sleep
 import os
 
 DEAD_ZONE = 7500
+BAUD = 9600
+
 # descend: ABS_RZ
 # lock descend: BTN_TRc
 # ascend: ABS_Z
@@ -108,16 +110,17 @@ def serial_ports():
 
 
 def openSerial():
-    global ser
-    valid = False
-    while(not valid):
-        time.sleep(1)
-        try:
-            ser = serial.Serial(serial_ports()[0], 4800, timeout=1)
-            ser.flush()
-            valid = True
-        except:
-            valid = False
+   global ser
+   valid = False
+   while(not valid):
+      time.sleep(1)
+      try:
+         ser = serial.Serial(serial_ports()[0], BAUD, timeout=1)
+         print(f'Starting communication with {serial_ports()[0]} on {BAUD}')
+         ser.flush()
+         valid = True
+      except:
+         valid = False
 
 
 def getPWM(value):
@@ -138,6 +141,14 @@ def getPWM(value):
 def getHexString(chars):
    return [hex(ord(c)).split('x')[-1] for c in ''.join(chars)]
 
+
+def getDirection(value):
+   if value >= 0:
+      return 0
+   else:
+      return 1
+
+
 openSerial()
 
 while True:   
@@ -147,10 +158,12 @@ while True:
       continue
 
    try:
-      bytesToSend = bytes([getPWM(ABS_RX), getPWM(ABS_Y), getPWM(ABS_Z), getPWM(ABS_RZ), 1])
+      # end of buffer at 9
+      bytesToSend = bytes([getPWM(ABS_Y), getDirection(ABS_Y), getPWM(ABS_Z), getPWM(ABS_RZ), 9])
       print(bytesToSend)
       ser.write(bytesToSend)
    except:
+      print("Communication lost.")
       openSerial()
 
    # try:
@@ -158,5 +171,5 @@ while True:
    # except:
    #    break
 
-   sleep(0.005)
+   # sleep(0.01)
    
