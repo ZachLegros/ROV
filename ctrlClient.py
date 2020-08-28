@@ -2,7 +2,7 @@ import socket
 from time import sleep
 from inputs import get_gamepad
 
-HOST = '127.0.0.1'  # The server's hostname or IP address
+HOST = '192.168.1.2'  # The server's hostname or IP address
 PORT = 8080        # The port used by the server
 DEAD_ZONE = 7500
 
@@ -97,6 +97,15 @@ def getDirection(value):
       return 1
 
 
+def getAscension(up, down):
+   if (up != 0 and down != 0) or (up == 0 and down == 0):
+      return 0, 0
+   elif up > down:
+      return getPWM(up), 0
+   else:
+      return getPWM(down), 1
+
+
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 while True:
@@ -117,7 +126,8 @@ while True:
       continue
     try:
       # end of buffer at 9
-      bytesToSend = bytes([getPWM(ABS_Y), getDirection(ABS_Y), getPWM(ABS_Z), getPWM(ABS_RZ)])
+      upDownValue, upDownDirection = getAscension(ABS_Z, ABS_RZ)
+      bytesToSend = bytes([getPWM(ABS_Y), getDirection(ABS_Y), upDownValue, upDownDirection])
       print(bytesToSend)
       s.sendall(bytesToSend)
       data = s.recv(256)

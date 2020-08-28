@@ -1,9 +1,9 @@
 
-output: controllerServer.o
-	g++ controllerServer.o -o controllerServer
+output: ctrlServer.o
+	g++ ctrlServer.o -o ctrlServer
 
-controllerServer.o: controllerServer.cpp
-	g++ -c controllerServer.cpp
+ctrlServer.o: ctrlServer.cpp
+	g++ -c ctrlServer.cpp
 
 clean: 
-	rm *.o controllerServer
+	rm *.o ctrlServer
