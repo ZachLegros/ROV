@@ -31,47 +31,50 @@ SPI::SPI(const char* device, uint8_t mode, uint8_t bits, uint32_t speed, uint16_
 	this->delay = delay;
 
 	int ret = 0;
-
-	this->fd = open(this->device, O_RDWR);
-	if (this->fd < 0)
+	int fd;
+	
+	fd = open(this->device, O_RDWR);
+	if (fd < 0)
 		pabort("can't open device");
 
 	/*
 	 * spi mode
 	 */
-	ret = ioctl(this->fd, SPI_IOC_WR_MODE, this->mode);
+	ret = ioctl(fd, SPI_IOC_WR_MODE, &mode);
 	if (ret == -1)
 		pabort("can't set spi mode");
 
-	ret = ioctl(this->fd, SPI_IOC_RD_MODE, this->mode);
+	ret = ioctl(fd, SPI_IOC_RD_MODE, &mode);
 	if (ret == -1)
 		pabort("can't get spi mode");
 
 	/*
 	 * bits per word
 	 */
-	ret = ioctl(this->fd, SPI_IOC_WR_BITS_PER_WORD, this->bits);
+	ret = ioctl(fd, SPI_IOC_WR_BITS_PER_WORD, &bits);
 	if (ret == -1)
 		pabort("can't set bits per word");
 
-	ret = ioctl(this->fd, SPI_IOC_RD_BITS_PER_WORD, this->bits);
+	ret = ioctl(fd, SPI_IOC_RD_BITS_PER_WORD, &bits);
 	if (ret == -1)
 		pabort("can't get bits per word");
 
 	/*
 	 * max speed hz
 	 */
-	ret = ioctl(this->fd, SPI_IOC_WR_MAX_SPEED_HZ, this->speed);
+	ret = ioctl(fd, SPI_IOC_WR_MAX_SPEED_HZ, &speed);
 	if (ret == -1)
 		pabort("can't set max speed hz");
 
-	ret = ioctl(this->fd, SPI_IOC_RD_MAX_SPEED_HZ, this->speed);
+	ret = ioctl(fd, SPI_IOC_RD_MAX_SPEED_HZ, &speed);
 	if (ret == -1)
 		pabort("can't get max speed hz");
 
-	printf("spi mode: %d\n", this->mode);
-	printf("bits per word: %d\n", this->bits);
-	printf("max speed: %d Hz (%d KHz)\n", this->speed, this->speed/1000);
+	printf("spi mode: %d\n", mode);
+	printf("bits per word: %d\n", bits);
+	printf("max speed: %d Hz (%d KHz)\n", speed, speed/1000);
+
+	this->fd = fd;
 }
 
 void SPI::printBuffer(uint8_t buffer[])

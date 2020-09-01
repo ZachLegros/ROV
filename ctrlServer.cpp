@@ -16,7 +16,7 @@ int addrlen = sizeof(address);
 unsigned char buffer[BUFFER_SIZE] = {5}; 
 const char *hello = "Hello from server";
 
-void handleConnection(int socket) {
+void handleConnection(int socket, SPI *com) {
   while (1)
     {
       valread = read(socket, buffer, BUFFER_SIZE); 
@@ -81,7 +81,11 @@ int main(int argc, char const *argv[])
           continue;
       } 
       std::cout << "Connected to client.\n";
-      handleConnection(new_socket);
+
+      SPI *spi_ptr;
+      SPI com;
+      spi_ptr = &com;
+      handleConnection(new_socket, spi_ptr);
     }
 
     return 0; 

@@ -6,7 +6,7 @@ ctrlServer.o: ctrlServer.cpp
 	g++ -c ctrlServer.cpp
 
 SPI.o: SPI.cpp SPI.h
-	g++ -c SPI.cpp SPI.h
+	g++ -c SPI.cpp
 
 clean: 
-	rm *.o ctrlServer
+	rm *.o ctrlServer *.gch
