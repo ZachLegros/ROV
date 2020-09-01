@@ -21,7 +21,7 @@ int addrlen = sizeof(address);
 uint8_t ctrl_buffer[BUFFER_SIZE] = {0, }; 
 const char *hello = "Hello from server";
 
-void handleConnection(int socket, SPI *com) {
+void handle_connection(int socket, SPI *com) {
   while (1)
     {
       valread = read(socket, ctrl_buffer, BUFFER_SIZE); 
@@ -88,7 +88,7 @@ int main(int argc, char const *argv[])
       SPI *spi_ptr;
       SPI com("/dev/spidev0.0", SPI_MODE, BITS_PER_WORDS, SPEED, DELAY);
       spi_ptr = &com;
-      handleConnection(new_socket, spi_ptr);
+      handle_connection(new_socket, spi_ptr);
     }
 
     return 0; 
