@@ -79,16 +79,14 @@ void SPI::printBytesBuffer(uint8_t buffer[], int len)
 	std::cout << std::endl;
 }
 
-void SPI::transfer(uint8_t tx[], int len)
+void SPI::transfer(uint8_t tx[], uint8_t rx[], unsigned int len)
 {
 	int ret;
 	
-	uint8_t rx[len] = {0, };
-
 	struct spi_ioc_transfer tr = {
 		.tx_buf = (unsigned long)tx,
 		.rx_buf = (unsigned long)rx,
-		.len = (unsigned int)len,
+		.len = len,
 		.speed_hz = this->speed,
 		.delay_usecs = this->delay,
 		.bits_per_word = this->bits,
@@ -98,9 +96,6 @@ void SPI::transfer(uint8_t tx[], int len)
 	if (ret < 1)
 		pabort("can't send spi message");
 		puts("");
-
-	printBytesBuffer(rx, len);
-	// do stuff with rx
 	
 }
 

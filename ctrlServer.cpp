@@ -30,11 +30,13 @@ void handleConnection(int socket, SPI *com) {
         std::cout << "Client disconnected.";
         break;
       }
-
-      com->transfer(ctrl_buffer, BUFFER_SIZE);
+    
+    	uint8_t rx[BUFFER_SIZE] = {0, };
+      com->transfer(ctrl_buffer, rx, BUFFER_SIZE);
+    	SPI::printBytesBuffer(rx, BUFFER_SIZE);
 
       // send data back to client
-      send(socket, hello, strlen(hello), 0); 
+      send(socket, rx, BUFFER_SIZE, 0); 
     }
 }
 
