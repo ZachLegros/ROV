@@ -130,7 +130,7 @@ while True:
       bytesToSend = bytes([getPWM(ABS_Y), getDirection(ABS_Y), upDownValue, upDownDirection])
       print(bytesToSend)
       s.sendall(bytesToSend)
-      data = s.recv(256)
+      #data = s.recv(256)
     except:
       print('Disconnected from host.')
       break

@@ -17,11 +17,6 @@ static void pabort(const char *s)
 	abort();
 }
 
-SPI::SPI()
-{
-	SPI("/dev/spidev0.0", 0, 8, 1000, 0);
-}
-
 SPI::SPI(const char* device, uint8_t mode, uint8_t bits, uint32_t speed, uint16_t delay)
 {
 	this->device = device;
@@ -34,6 +29,7 @@ SPI::SPI(const char* device, uint8_t mode, uint8_t bits, uint32_t speed, uint16_
 	int fd;
 	
 	fd = open(this->device, O_RDWR);
+	this->fd = fd;
 	if (fd < 0)
 		pabort("can't open device");
 
@@ -73,45 +69,37 @@ SPI::SPI(const char* device, uint8_t mode, uint8_t bits, uint32_t speed, uint16_
 	printf("spi mode: %d\n", mode);
 	printf("bits per word: %d\n", bits);
 	printf("max speed: %d Hz (%d KHz)\n", speed, speed/1000);
-
-	this->fd = fd;
 }
 
-void SPI::printBuffer(uint8_t buffer[])
+void SPI::printBytesBuffer(uint8_t buffer[], int len)
 {
-	for (int i = 0; i < ARRAY_SIZE(buffer); i++) {
+	for (int i = 0; i < len; i++) {
 		std::cout << (int)buffer[i] << " ";
 	}
-	puts(""); 
+	std::cout << std::endl;
 }
 
-void SPI::transfer(uint8_t tx[])
+void SPI::transfer(uint8_t tx[], int len)
 {
 	int ret;
-	// uint8_t tx[] = {
-  //       0xff, 0x01, 0x00, 0xbe, 0x01,
-  //       0x00, 0x00, 0x00, 0x00, 0x00,
-	// 			0x00, 0x00, 0x00, 0x00, 0x00,
-  //       0x0A 
-	// };
-
-	uint8_t rx[ARRAY_SIZE(tx)] = {0, };
+	
+	uint8_t rx[len] = {0, };
 
 	struct spi_ioc_transfer tr = {
 		.tx_buf = (unsigned long)tx,
 		.rx_buf = (unsigned long)rx,
-		.len = ARRAY_SIZE(tx),
-		.speed_hz = speed,
-		.delay_usecs = delay,
-		.bits_per_word = bits,
+		.len = (unsigned int)len,
+		.speed_hz = this->speed,
+		.delay_usecs = this->delay,
+		.bits_per_word = this->bits,
 	};
-	
-	printBuffer(tx);
-	ret = ioctl(fd, SPI_IOC_MESSAGE(1), &tr);
+
+	ret = ioctl(this->fd, SPI_IOC_MESSAGE(1), &tr);
 	if (ret < 1)
 		pabort("can't send spi message");
-	puts("");
-	printBuffer(rx);
+		puts("");
+
+	printBytesBuffer(rx, len);
 	// do stuff with rx
 	
 }

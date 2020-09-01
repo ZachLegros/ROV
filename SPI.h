@@ -15,11 +15,10 @@ class SPI
     uint16_t delay;
 
   public:
-    SPI();
     SPI(const char* device, uint8_t mode, uint8_t bits, uint32_t speed, uint16_t delay);
-    void transfer(uint8_t tx[]);
+    void transfer(uint8_t tx[], int len);
     void close_SPI();
-    void printBuffer(uint8_t buffer[]);
+    static void printBytesBuffer(uint8_t buffer[], int len);
 };
 
 #endif

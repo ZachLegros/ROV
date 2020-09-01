@@ -9,4 +9,4 @@ SPI.o: SPI.cpp SPI.h
 	g++ -c SPI.cpp
 
 clean: 
-	rm *.o ctrlServer *.gch
+	rm *.o ctrlServer
