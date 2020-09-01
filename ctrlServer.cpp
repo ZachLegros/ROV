@@ -1,3 +1,4 @@
+#include "SPI.h"
 #include <unistd.h> 
 #include <stdio.h> 
 #include <sys/socket.h> 
@@ -6,30 +7,35 @@
 #include <string.h> 
 #include <iostream>
 #define PORT 8080 
-#define BUFFER_SIZE 1024
+#define BUFFER_SIZE 10
 
-int server_fd, new_socket, valread; 
+int server_fd, SPI_fd, new_socket, valread; 
 struct sockaddr_in address; 
 int opt = 1; 
 int addrlen = sizeof(address); 
-unsigned char buffer[BUFFER_SIZE] = {0}; 
+unsigned char buffer[BUFFER_SIZE] = {5}; 
 const char *hello = "Hello from server";
 
-
 void handleConnection(int socket) {
-  while (true)
+  while (1)
     {
-      valread = read( socket , buffer, BUFFER_SIZE); 
+      valread = read(socket, buffer, BUFFER_SIZE); 
       if (valread == -1) {
         close(socket);
+        close(SPI_fd);
         std::cout << "Client disconnected.";
         break;
       }
-      std::cout << (int)buffer[0] << std::endl; 
-      send(socket , hello , strlen(hello) , 0 ); 
+      std::cout << "Client data: ";
+      //printBuffer(buffer, BUFFER_SIZE);
+      
+      std::cout << "Arduino data: ";
+      // print sensor values
+      //printBuffer(buffer, BUFFER_SIZE);
+      // send data back to client
+      send(socket, hello, strlen(hello), 0); 
     }
 }
-
 
 int main(int argc, char const *argv[]) 
 { 
