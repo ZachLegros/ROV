@@ -28,7 +28,7 @@ SPI::SPI(const char* device, uint8_t mode, uint8_t bits, uint32_t speed, uint16_
 	int ret = 0;
 	int fd;
 	
-	fd = open(this->device, O_RDWR);
+	fd = open(device, O_RDWR);
 	this->fd = fd;
 	if (fd < 0)
 		pabort("can't open device");

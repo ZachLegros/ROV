@@ -9,9 +9,13 @@
 #define PORT 8080 
 #define BUFFER_SIZE 16
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
+#define SPI_MODE 0
+#define BITS_PER_WORDS 8
+#define SPEED 25000
+#define DELAY 0
 
 int server_fd, new_socket, valread; 
-struct sockaddr_in address; 
+struct sockaddr_in address;
 int opt = 1; 
 int addrlen = sizeof(address); 
 uint8_t ctrl_buffer[BUFFER_SIZE] = {0, }; 
@@ -80,7 +84,7 @@ int main(int argc, char const *argv[])
       std::cout << "Connected to client.\n";
 
       SPI *spi_ptr;
-      SPI com("/dev/spidev0.0", 0, 8, 100000, 0);
+      SPI com("/dev/spidev0.0", SPI_MODE, BITS_PER_WORDS, SPEED, DELAY);
       spi_ptr = &com;
       handleConnection(new_socket, spi_ptr);
     }
