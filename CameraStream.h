@@ -1,5 +1,6 @@
 #ifndef CAM_STREAM
 #define CAM_STREAM
+#include <iostream>
 
 class CameraStream
 {
@@ -13,7 +14,7 @@ private:
 public:
    CameraStream(int port, int fps, int x, int y, int iso);
    int start();
-   int stop();
+   static int stop();
 };
 
 #endif

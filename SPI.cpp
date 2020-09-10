@@ -66,6 +66,7 @@ SPI::SPI(const char* device, uint8_t mode, uint8_t bits, uint32_t speed, uint16_
 	if (ret == -1)
 		pabort("can't get max speed hz");
 
+	printf("connected to arduino\n");
 	printf("spi mode: %d\n", mode);
 	printf("bits per word: %d\n", bits);
 	printf("max speed: %d Hz (%d KHz)\n", speed, speed/1000);

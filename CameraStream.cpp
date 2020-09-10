@@ -14,7 +14,6 @@ CameraStream::CameraStream(int port, int fps, int x, int y, int iso)
 
 int CameraStream::start()
 {
-   stop();
    char command[256];
    sprintf(command, "mjpg_streamer -i 'input_raspicam.so -fps %d -x %d -y %d -ISO %d' -o 'output_http.so -p %d'", this->fps, this->x, this->y, this->iso, this->port);
    if (system(command) <= 0)

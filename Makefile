@@ -1,6 +1,6 @@
 
 output: ctrlServer.o SPI.o CameraStream.o
-	g++ ctrlServer.o SPI.o CameraStream.o -o ctrlServer
+	g++ -pthread ctrlServer.o SPI.o CameraStream.o -o ctrlServer
 
 CameraStream.o: CameraStream.cpp CameraStream.h
 	g++ -c CameraStream.cpp

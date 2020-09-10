@@ -7,6 +7,9 @@
 #include <netinet/in.h>
 #include <string.h>
 #include <iostream>
+#include <thread>
+#include <csignal>
+
 #define PORT 8080
 #define BUFFER_SIZE 16
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
@@ -29,8 +32,26 @@ uint8_t ctrl_buffer[BUFFER_SIZE] = {
     0,
 };
 
-void handle_connection(int socket, SPI *com)
+void exiting(int i) {
+  std::cout << "aborting" << std::endl;
+  CameraStream::stop();
+  exit(0);
+}
+
+void start_stream()
 {
+  CameraStream::stop();
+  CameraStream raspi_cam(CAM_PORT, CAM_FPS, CAM_X, CAM_Y, CAM_ISO);
+  raspi_cam.start();
+}
+
+void client_thread(int socket)
+{
+  std::cout << "Connected to client.\n";
+
+  SPI com("/dev/spidev0.0", SPI_MODE, BITS_PER_WORDS, SPEED, DELAY);
+
+  client_connected = true;
   while (1)
   {
     valread = read(socket, ctrl_buffer, BUFFER_SIZE);
@@ -45,16 +66,24 @@ void handle_connection(int socket, SPI *com)
     uint8_t rx[BUFFER_SIZE] = {
         0,
     };
-    com->transfer(ctrl_buffer, rx, BUFFER_SIZE);
+    com.transfer(ctrl_buffer, rx, BUFFER_SIZE);
     SPI::printBytesBuffer(rx, BUFFER_SIZE);
 
     // send data back to client
     send(socket, rx, BUFFER_SIZE, 0);
   }
+  com.close_SPI();
 }
 
 int main(int argc, char const *argv[])
 {
+  //^C
+  signal(SIGINT, exiting);
+  //sent by "kill" command
+  signal(SIGTERM, exiting);
+  //^Z
+  signal(SIGTSTP, exiting);
+
   // Creating socket file descriptor
   if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0)
   {
@@ -86,8 +115,8 @@ int main(int argc, char const *argv[])
     exit(EXIT_FAILURE);
   }
 
-  CameraStream raspi_cam(CAM_PORT, CAM_FPS, CAM_X, CAM_Y, CAM_ISO);
-  raspi_cam.start();
+  std::thread stream(start_stream);
+  stream.detach();
   std::cout << "Server started on port " << PORT << std::endl;
 
   while (true)
@@ -96,14 +125,10 @@ int main(int argc, char const *argv[])
                              (socklen_t *)&addrlen)) < 0)
     {
       perror("Accept failed.");
-      raspi_cam.stop();
       continue;
     }
-    std::cout << "Connected to client.\n";
-
-    SPI com("/dev/spidev0.0", SPI_MODE, BITS_PER_WORDS, SPEED, DELAY);
-    client_connected = true;
-    handle_connection(new_socket, &com);
+    std::thread client(client_thread, new_socket);
+    client.join();
   }
 
   return 0;
