@@ -11,7 +11,7 @@
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 #define SPI_MODE 0
 #define BITS_PER_WORDS 8
-#define SPEED 25000
+#define SPEED 500
 #define DELAY 0
 
 int server_fd, new_socket, valread; 
