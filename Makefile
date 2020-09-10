@@ -1,6 +1,9 @@
 
-output: ctrlServer.o SPI.o
-	g++ ctrlServer.o SPI.o -o ctrlServer
+output: ctrlServer.o SPI.o CameraStream.o
+	g++ ctrlServer.o SPI.o CameraStream.o -o ctrlServer
+
+CameraStream.o: CameraStream.cpp CameraStream.h
+	g++ -c CameraStream.cpp
 
 ctrlServer.o: ctrlServer.cpp
 	g++ -c ctrlServer.cpp

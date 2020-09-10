@@ -1,4 +1,5 @@
 #include "SPI.h"
+#include "CameraStream.h"
 #include <unistd.h>
 #include <stdio.h>
 #include <sys/socket.h>
@@ -13,7 +14,13 @@
 #define BITS_PER_WORDS 8
 #define SPEED 500
 #define DELAY 0
+#define CAM_PORT 3000
+#define CAM_FPS 30
+#define CAM_X 1080
+#define CAM_Y 720
+#define CAM_ISO 3200
 
+bool client_connected = false;
 int server_fd, new_socket, valread;
 struct sockaddr_in address;
 int opt = 1;
@@ -21,7 +28,6 @@ int addrlen = sizeof(address);
 uint8_t ctrl_buffer[BUFFER_SIZE] = {
     0,
 };
-const char *hello = "Hello from server";
 
 void handle_connection(int socket, SPI *com)
 {
@@ -32,6 +38,7 @@ void handle_connection(int socket, SPI *com)
     {
       close(socket);
       std::cout << "Client disconnected.";
+      client_connected = false;
       break;
     }
 
@@ -79,6 +86,8 @@ int main(int argc, char const *argv[])
     exit(EXIT_FAILURE);
   }
 
+  CameraStream raspi_cam(CAM_PORT, CAM_FPS, CAM_X, CAM_Y, CAM_ISO);
+  raspi_cam.start();
   std::cout << "Server started on port " << PORT << std::endl;
 
   while (true)
@@ -87,11 +96,13 @@ int main(int argc, char const *argv[])
                              (socklen_t *)&addrlen)) < 0)
     {
       perror("Accept failed.");
+      raspi_cam.stop();
       continue;
     }
     std::cout << "Connected to client.\n";
 
     SPI com("/dev/spidev0.0", SPI_MODE, BITS_PER_WORDS, SPEED, DELAY);
+    client_connected = true;
     handle_connection(new_socket, &com);
   }
 
