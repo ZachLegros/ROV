@@ -55,7 +55,7 @@ void client_thread(int socket)
   while (1)
   {
     valread = read(socket, ctrl_buffer, BUFFER_SIZE);
-    if (valread < 0)
+    if (valread <= 0)
     {
       close(socket);
       std::cout << "Client disconnected.\n";
