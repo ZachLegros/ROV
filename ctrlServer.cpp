@@ -55,10 +55,10 @@ void client_thread(int socket)
   while (1)
   {
     valread = read(socket, ctrl_buffer, BUFFER_SIZE);
-    if (valread == -1)
+    if (valread < 0)
     {
       close(socket);
-      std::cout << "Client disconnected.";
+      std::cout << "Client disconnected.\n";
       client_connected = false;
       break;
     }
@@ -119,7 +119,7 @@ int main(int argc, char const *argv[])
   stream.detach();
   std::cout << "Server started on port " << PORT << std::endl;
 
-  while (true)
+  while (1)
   {
     if ((new_socket = accept(server_fd, (struct sockaddr *)&address,
                              (socklen_t *)&addrlen)) < 0)
