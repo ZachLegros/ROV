@@ -52,15 +52,13 @@ void client_thread(int socket)
 
   SPI com("/dev/spidev0.0", SPI_MODE, BITS_PER_WORDS, SPEED, DELAY);
 
-  client_connected = true;
   while (1)
   {
     valread = read(socket, ctrl_buffer, BUFFER_SIZE);
     if (valread <= 0)
     {
       close(socket);
-      std::cout << "Client disconnected.\n";
-      client_connected = false;
+      std::cout << "\nClient disconnected.\n";
       break;
     }
 
@@ -118,8 +116,8 @@ int main(int argc, char const *argv[])
 
   std::thread stream(start_stream);
   stream.detach();
-  std::cout << "Server started on port " << PORT << std::endl;
 
+  std::cout << "Server started on port " << PORT << std::endl;
   while (1)
   {
     if ((new_socket = accept(server_fd, (struct sockaddr *)&address,
