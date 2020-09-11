@@ -28,7 +28,6 @@ int CameraStream::stop()
 {
    if (system("sudo killall mjpg_streamer") <= 0)
    {
-      std::cout << "Error: failed to end stream" << std::endl;
       return -1;
    }
    return 0;
