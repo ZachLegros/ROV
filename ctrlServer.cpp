@@ -32,7 +32,8 @@ uint8_t ctrl_buffer[BUFFER_SIZE] = {
     0,
 };
 
-void exiting(int i) {
+void exiting(int i)
+{
   std::cout << "aborting" << std::endl;
   CameraStream::stop();
   exit(0);
@@ -55,7 +56,7 @@ void client_thread(int socket)
   while (1)
   {
     valread = read(socket, ctrl_buffer, BUFFER_SIZE);
-    if (valread < 0)
+    if (valread <= 0)
     {
       close(socket);
       std::cout << "Client disconnected.\n";
