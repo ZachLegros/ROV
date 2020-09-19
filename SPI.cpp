@@ -17,19 +17,11 @@ static void pabort(const char *s)
 	abort();
 }
 
-SPI::SPI(const char* device, uint8_t mode, uint8_t bits, uint32_t speed, uint16_t delay)
+SPI::SPI(const char* device, uint8_t mode, uint8_t bits, uint32_t speed, uint16_t delay) : device(device), mode(mode), bits(bits), speed(speed), delay(delay)
 {
-	this->device = device;
-	this->mode = mode;
-	this->bits = bits;
-	this->speed = speed;
-	this->delay = delay;
-
 	int ret = 0;
-	int fd;
 	
 	fd = open(device, O_RDWR);
-	this->fd = fd;
 	if (fd < 0)
 		pabort("can't open device");
 
@@ -87,12 +79,12 @@ void SPI::transfer(uint8_t tx[], uint8_t rx[], unsigned int len)
 		.tx_buf = (unsigned long)tx,
 		.rx_buf = (unsigned long)rx,
 		.len = len,
-		.speed_hz = this->speed,
-		.delay_usecs = this->delay,
-		.bits_per_word = this->bits,
+		.speed_hz = speed,
+		.delay_usecs = delay,
+		.bits_per_word = bits,
 	};
 
-	ret = ioctl(this->fd, SPI_IOC_MESSAGE(1), &tr);
+	ret = ioctl(fd, SPI_IOC_MESSAGE(1), &tr);
 	if (ret < 1)
 		pabort("can't send spi message");
 		puts("");
@@ -101,6 +93,5 @@ void SPI::transfer(uint8_t tx[], uint8_t rx[], unsigned int len)
 
 void SPI::close_SPI()
 {
-	close(this->fd);
+	close(fd);
 }
-
